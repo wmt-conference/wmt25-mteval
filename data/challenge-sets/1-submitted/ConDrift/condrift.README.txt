@@ -1,0 +1,14 @@
+# ConDrift Challenge Set - Kaze-MT 
+
+## Submission Information
+
+- Team name: Kaze-MT 
+- Affiliation: University of Amsterdam, Sony Group Corporation
+- Contact Person: Shaomu Tan, shaomu.tan.edu@gmail.com / s.tan@uva.nl
+- Targeted subtasks: Task 1: Segment-level quality score prediction
+- Language(s) covered:
+    - en-zh,en-ja,ja-zh
+- Data Source:
+    - WMT25 General MT
+- Abstract:
+    - QE models such as COMET-KIWI, MetricX, and Remedy often give top marks to translations that begin faithfully but then drift into fluent yet irrelevant continuations. To expose this vulnerability, we will release CoDrift-25, a WMT25 challenge set built entirely from controlled LLM experiments: for each source sentence we generate continuation-drift candidates whose length and topical proximity are systematically varied to mislead current QE metrics.

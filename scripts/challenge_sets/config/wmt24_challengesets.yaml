@@ -1,0 +1,25 @@
+submissions_directory : '../data/submissions'
+columns : ['langpair', 'source', 'good-translation', 'incorrect-translation', 'reference', 'phenomena']
+output_dir : "/home/elav01/PycharmProjects/wmt23-metrics/challenge_sets/data/to_metrics/"
+output_systems_subdir : "challengesets"
+
+file_descriptions : [
+    {
+        'group_id': 'ACES',
+        'filename': 'aces.tsv',
+        'header': 0,
+        'quote': 'NONE',
+    },
+    {
+        'group_id': 'NRC-MSLC23',
+        'filename': 'NRC-MSLC23.tsv',
+        'header': null,
+        'quote': 'NONE',
+    },
+    {
+        'group_id': 'DFKI',
+        'filename': 'DFKI.tsv',
+        'header': null,
+        'quote': 'NONE',
+    },
+]

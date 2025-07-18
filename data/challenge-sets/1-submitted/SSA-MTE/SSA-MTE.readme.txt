@@ -1,0 +1,23 @@
+==========================
+SSA-MTE
+==========================
+
+This challenge set contains translation evaluation test data for the scoring task for 11 African-centric language pairs. The specific language pairs included are:
+
+- English-Amharic (en-amh)
+- English-Hausa (en-hau)
+- English-Kikuyu (en-kik)
+- English-Kinyarwanda (en-kin)
+- English-Luo (en-luo)
+- English-Twi (en-twi)
+- English-Yoruba (en-yor)
+- French-Ewe (fr-ewe)
+- French-Wolof (fr-wol)
+- Portuguese-Emakhuwa (pt-vmw)
+- Portuguese-Nyanja (pt-nya)
+
+Authors:
+- Senyu Li (senyu.li@mila.quebec)
+- Jiayi Wang (jiaywang@cs.ucl.ac.uk)
+- Felermino D. M. A. Ali (up202100778@fe.up.pt)
+- David Adelani (david.adelani@mila.quebec)
