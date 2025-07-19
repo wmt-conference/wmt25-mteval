@@ -51,3 +51,4 @@
 2025-07-19.22-19-39 rm *part*
 2025-07-19.22-19-46 hgrep split
 2025-07-19.22-19-56 man split
+2025-07-19.22-26-33 split challenge_sets.tsv challenge_sets.part_ --additional-suffix .tsv -d -a3 -C10000

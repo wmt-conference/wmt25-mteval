@@ -2,3 +2,11 @@
 2025-07-19.21-39-11 pip install PyYAML 
 2025-07-19.21-39-15 pip install PyYAML
 2025-07-19.22-08-52 pip install PyYAML
+2025-07-19.22-21-29 git add . 
+2025-07-19.22-21-51 git commit 
+2025-07-19.22-24-50 git add data/challenge-sets/2-to_metrics
+2025-07-19.22-24-53 git commit
+2025-07-19.22-25-11 git commit -m "Trying to remove large file"
+2025-07-19.22-26-20 git push
+2025-07-19.22-27-41 git filter-branch --index-filter "git rm -rf --cached --ignore-unmatch data/challenge-sets/2-to_metrics/challenge_sets.tsv" HEAD 
+2025-07-19.22-27-54 git status
