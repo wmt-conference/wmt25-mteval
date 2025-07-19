@@ -1,72 +1,124 @@
+import argparse
+import csv
+import glob
 import os
-import shutil
 
-# Define input and output directories
-INPUT_DIRECTORY = 'data/1-submitted'
-OUTPUT_DIRECTORY = 'data/2-to_metrics'
-
-# Define the dictionaries for mapping
-CHALLENG_SET_NAME_MAP = {
-    'AfriMTE-ade-devtest-v2': 'AfriMTE',
-    'bio-mqm-dataset': 'bioMQM',
-}
-
-LANG_CODE_MAP = {
-    'eng': 'en',
-    'fra': 'fr',
-    # Add more mappings as needed
-}
+FIELDNAMES = [
+    'doc_id',
+    'segment_id',
+    'source_lang',
+    'target_lang',
+    'set_id',
+    'system_id',
+    'source_segment',
+    'hypothesis_segment',
+    'reference_segment',
+    'domain_name',
+    'method'
+]
 
 
-# Function to rename files
-def rename_file(filename):
-    parts = filename.split('.')
-    challenge_set_name = parts[0]
-    source_lang_code, target_lang_code = parts[1].split('-')
-    file_type = parts[2]
+def traverse_source_dir(input_directory):
+    # Process files in the first level of subdirectories
 
-    shortened_challenge_set_name = CHALLENG_SET_NAME_MAP.get(challenge_set_name, challenge_set_name)
-    shortened_source_lang_code = LANG_CODE_MAP.get(source_lang_code, source_lang_code)
-    shortened_target_lang_code = LANG_CODE_MAP.get(target_lang_code, target_lang_code)
+    for challenge_set_name in next(os.walk(input_directory))[1]:
+        challenge_set_path = os.path.join(input_directory, challenge_set_name)
 
-    if 'hyp-' in file_type:
-        system_name = file_type.split('-')[1]
-        new_file_type = f'hyp.{system_name}'
-    else:
-        new_file_type = file_type
+        # get the language pairs covered by this challenge set
+        langpairs = set([filename.split('.')[1] for filename in os.listdir(challenge_set_path)])
 
-    if file_type == 'src':
-        new_filename = f"challenge_{shortened_challenge_set_name}.{shortened_source_lang_code}-{shortened_target_lang_code}.{new_file_type}.{shortened_source_lang_code}"
-    elif file_type == 'docID':
-        new_filename = f"challenge_{shortened_challenge_set_name}.{shortened_source_lang_code}-{shortened_target_lang_code}.{new_file_type}.csv"
-    else:
-        new_filename = f"challenge_{shortened_challenge_set_name}.{shortened_source_lang_code}-{shortened_target_lang_code}.{new_file_type}.{shortened_target_lang_code}"
+        for langpair in sorted(list(langpairs)):
+            if langpair in ["README", "history", "readme"]:
+                continue
+            source_lang, target_lang = langpair.split('-')
 
-    return new_filename
+            # resolve the filenames for the langpair
+            hypothesis_filenames, meta_filename, reference_filename, source_filename = resolve_filenames(
+                challenge_set_name, challenge_set_path, langpair)
+
+            with open(source_filename) as source_file, \
+                open(meta_filename) as meta_file:
+                meta_reader = csv.reader(meta_file, delimiter='\t')
+                next(meta_reader)
+                try:
+                    reference_file = open(reference_filename)
+                    reference_exists = True
+                except FileNotFoundError:
+                    reference_exists = False
+                    reference_file = None
+                hypothesis_files = [open(hypothesis_filename) for hypothesis_filename in sorted(hypothesis_filenames)]
+
+                prev_doc_id = None
+                segment_n = 0
+
+                for source_segment in source_file:
+                    source_segment = source_segment.strip()
+                    try:
+                        row = next(meta_reader)
+                        domain_name, doc_id = row
+                    except StopIteration:
+                        domain_name = 'None'
+                        doc_id = f"{challenge_set_name}_unknown"
+
+                    set_id = f"challenge_{challenge_set_name}"
+                    if prev_doc_id == doc_id:
+                        segment_n +=1
+                    else:
+                        prev_doc_id = doc_id
+                        segment_n = 1
+
+                    method = ""
+
+                    segment_id = f"challenge_{challenge_set_name}_#_{langpair}_#_{doc_id}_#_{segment_n}"
+
+                    if reference_exists:
+                        reference_segment = next(reference_file).strip()
+                    else:
+                        reference_segment = ""
+                    for hypothesis_file in hypothesis_files:
+                        hypothesis_segment = next(hypothesis_file).strip()
+                        system_id = os.path.basename(hypothesis_file.name).split('.')[2] # as in hyp-1, hyp-2
+
+                        yield {'doc_id': doc_id,
+                               'segment_id': segment_id,
+                               'source_lang': source_lang,
+                               'target_lang': target_lang,
+                               'set_id': set_id,
+                               'system_id': system_id,
+                               'source_segment': source_segment,
+                               'hypothesis_segment': hypothesis_segment,
+                               'reference_segment': reference_segment,
+                               'domain_name': domain_name,
+                               'method': method}
+
+
+def resolve_filenames(challenge_set_name, challenge_set_path, langpair):
+    source_filename = os.path.join(challenge_set_path, f"{challenge_set_name}.{langpair}.src.txt")
+    reference_filename = os.path.join(challenge_set_path, f"{challenge_set_name}.{langpair}.ref.txt")
+    meta_filename = os.path.join(challenge_set_path, f"{challenge_set_name}.{langpair}.meta.txt")
+    if not os.path.isfile(meta_filename):
+        meta_filename = os.path.join(challenge_set_path, f"{challenge_set_name}.{langpair}.meta.tsv")
+    hypothesis_glob = os.path.join(challenge_set_path, f"{challenge_set_name}.{langpair}.hyp-*.txt")
+    hypothesis_filenames = glob.glob(hypothesis_glob)
+    return hypothesis_filenames, meta_filename, reference_filename, source_filename
+
+
+def convert_challenge_sets(input_directory, output_tsv_filename):
+    with open(output_tsv_filename, 'w') as output_tsv:
+        writer = csv.DictWriter(output_tsv, fieldnames=FIELDNAMES, delimiter='\t')
+        for row in traverse_source_dir(input_directory):
+            writer.writerow(row)
+
 
 
 if __name__ == '__main__':
     # Create output subdirectories if they don't exist
-    os.makedirs(os.path.join(OUTPUT_DIRECTORY, 'references'), exist_ok=True)
-    os.makedirs(os.path.join(OUTPUT_DIRECTORY, 'sources'), exist_ok=True)
-    os.makedirs(os.path.join(OUTPUT_DIRECTORY, 'metadata'), exist_ok=True)
-    os.makedirs(os.path.join(OUTPUT_DIRECTORY, 'system_outputs'), exist_ok=True)
 
-    # Process files in the first level of subdirectories
-    for subdir in next(os.walk(INPUT_DIRECTORY))[1]:
-        subdir_path = os.path.join(INPUT_DIRECTORY, subdir)
-        for file in os.listdir(subdir_path):
-            file_path = os.path.join(subdir_path, file)
-            if os.path.isfile(file_path):
-                if file.endswith('ref.txt'):
-                    new_filename = rename_file(file)
-                    shutil.copy(file_path, os.path.join(OUTPUT_DIRECTORY, 'references', new_filename))
-                elif file.endswith('src.txt'):
-                    new_filename = rename_file(file)
-                    shutil.copy(file_path, os.path.join(OUTPUT_DIRECTORY, 'sources', new_filename))
-                elif file.endswith("docID.txt"):
-                    new_filename = rename_file(file)
-                    shutil.copy(file_path, os.path.join(OUTPUT_DIRECTORY, 'metadata', new_filename))
-                elif 'hyp-' in file and file.endswith('.txt'):
-                    new_filename = rename_file(file)
-                    shutil.copy(file_path, os.path.join(OUTPUT_DIRECTORY, 'system_outputs', new_filename))
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input_dir', required=True, type=str,
+                      help="The directory where challenge set submissions exist")
+    parser.add_argument('--output_tsv', required=True, type=str,
+                      help="The target TSV file where inputs will be placed")
+    args = parser.parse_args()
+    convert_challenge_sets(args.input_dir, args.output_tsv)
+
