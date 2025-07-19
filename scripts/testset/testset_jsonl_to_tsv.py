@@ -320,39 +320,29 @@ def main():
 
     # Write accumulated results out by lang pair:
     count = 0
-    try:
-        with open(args.output_path, "w", newline='', encoding='utf-8') as f:
-            writer = csv.writer(f, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
-            if hasattr(Segment, '_fields'):
-                writer.writerow(Segment._fields)
-            else:
-                print("Warning: Segment._fields not found. Skipping header.")
-            for lp, segments in complete_segs_by_lp.items():
-                if segments:
-                    for seg in segments:
-                        if seg is not None:
-                            count += 1
-                            sanitized_seg = []
-                            for field in seg:
-                                if isinstance(field, str):
-                                    sanitized_seg.append(field)
-                                elif field is None:
-                                    sanitized_seg.append('') # Replace None with empty string
-                                else:
-                                    sanitized_seg.append(str(field))
-                            writer.writerow(sanitized_seg)
-                        else:
-                            print(f"Warning: Encountered a None segment in {lp}")
+    with open(args.output_path, "w", newline='', encoding='utf-8') as f:
+        writer = csv.writer(f, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
+        if hasattr(Segment, '_fields'):
+            writer.writerow(Segment._fields)
+        else:
+            print("Warning: Segment._fields not found. Skipping header.")
+        for lp, segments in complete_segs_by_lp.items():
+            if segments:
+                for seg in segments:
+                    if seg is not None:
+                        count += 1
+                        sanitized_seg = []
+                        for field in seg:
+                            if isinstance(field, str):
+                                sanitized_seg.append(field)
+                            else:
+                                sanitized_seg.append(str(field))
+                        writer.writerow(sanitized_seg)
+                    else:
+                        print(f"Warning: Encountered a None segment in {lp}")
 
-        print(f"Successfully wrote {count} segments to {args.output_path}")
+    print(f"Successfully wrote {count} segments to {args.output_path}")
 
-    except AttributeError as e:
-        print(f"AttributeError: {e}. Check Segment definition and attributes.")
-    except TypeError as e:
-        print(f"TypeError during writing: {e}. Check data types within segments.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    
 
 if __name__ == "__main__":
     main()
