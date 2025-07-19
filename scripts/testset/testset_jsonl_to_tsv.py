@@ -335,8 +335,7 @@ def main():
                             sanitized_seg = []
                             for field in seg:
                                 if isinstance(field, str):
-                                    sanitized_field = field.replace('\t', ' ').replace('\n', ' ').replace('\r', ' ')
-                                    sanitized_seg.append(sanitized_field)
+                                    sanitized_seg.append(field)
                                 elif field is None:
                                     sanitized_seg.append('') # Replace None with empty string
                                 else:
