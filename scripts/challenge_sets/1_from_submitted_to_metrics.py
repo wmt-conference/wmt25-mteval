@@ -27,6 +27,8 @@ def traverse_source_dir(input_directory):
         # get the language pairs covered by this challenge set
         langpairs = set([filename.split('.')[1] for filename in os.listdir(challenge_set_path)])
 
+        segment_n = 0
+
         for langpair in sorted(list(langpairs)):
             if langpair in ["README", "history", "readme"]:
                 continue
@@ -48,11 +50,9 @@ def traverse_source_dir(input_directory):
                     reference_file = None
                 hypothesis_files = [open(hypothesis_filename) for hypothesis_filename in sorted(hypothesis_filenames)]
 
-                prev_doc_id = None
-                segment_n = 0
-
                 for source_segment in source_file:
                     source_segment = source_segment.strip()
+                    segment_n += 1
                     try:
                         row = next(meta_reader)
                         domain_name, doc_id = row
@@ -61,15 +61,9 @@ def traverse_source_dir(input_directory):
                         doc_id = f"{challenge_set_name}_unknown"
 
                     set_id = f"challenge_{challenge_set_name}"
-                    if prev_doc_id == doc_id:
-                        segment_n +=1
-                    else:
-                        prev_doc_id = doc_id
-                        segment_n = 1
-
                     method = ""
 
-                    segment_id = f"challenge_{challenge_set_name}_#_{langpair}_#_{doc_id}_#_{segment_n}"
+                    # segment_id = f"challenge_{challenge_set_name}_#_{langpair}_#_{doc_id}_#_{segment_n}"
 
                     if reference_exists:
                         reference_segment = next(reference_file).strip()
@@ -80,7 +74,7 @@ def traverse_source_dir(input_directory):
                         system_id = os.path.basename(hypothesis_file.name).split('.')[2] # as in hyp-1, hyp-2
 
                         yield {'doc_id': doc_id,
-                               'segment_id': segment_id,
+                               'segment_id': segment_n,
                                'source_lang': source_lang,
                                'target_lang': target_lang,
                                'set_id': set_id,
