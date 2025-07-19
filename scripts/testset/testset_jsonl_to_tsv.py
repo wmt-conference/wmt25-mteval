@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# Assuming data from wmt-conference/wmt25-general-mt is downloaded 
+# Command to run: 
+# python3 testset_jsonl_to_tsv.py  \
+#     --src-file wmt25-general-mt/data/wmt25-genmt.jsonl  \
+#     --teams-file wmt25-general-mt/data/systems_metadata.json \
+#     --hyp-dir wmt25-general-mt/data/systems \
+#     --output-path wmt25_metrics_testset.tsv
 
 import argparse
 import collections
@@ -6,6 +13,7 @@ import json
 import os.path
 import re
 import sys
+import csv
 
 
 # TODO: remove submissions that won't be sent to human eval (ask Tom/Vilém)
@@ -243,6 +251,9 @@ NEWLINES_REGEX = re.compile("\\s*\n\\s*")
 
 def trim_and_escape(text):
     fixed = text.strip().replace("\t", " ")
+    # there are literal tabs, not sure if we would want to replace them too though
+    if "    " in fixed:
+        fixed = fixed.replace("    ", " ")
     return NEWLINES_REGEX.sub(r" \\n ", fixed)
 
 
@@ -280,6 +291,8 @@ def main():
                         help="Location of the JSON file containing data about the participating MT teams and their output files")
     parser.add_argument("--hyp-dir", type=str, required=True,
                         help="Location of the directory containing the teams' output files in JSON lines format")
+    parser.add_argument("--output-path", type=str, required=True,
+                        help="Location to save the tsv file")
     args = parser.parse_args()
 
     # Short circuit: don't start work if MT hyps location is invalid:
@@ -306,11 +319,30 @@ def main():
                 complete_segs_by_lp[lp] += hyp_segs_by_lp[lp]
 
     # Write accumulated results out by lang pair:
-    print("\t".join(Segment._fields))
-    for lp in complete_segs_by_lp:
-        for seg in complete_segs_by_lp[lp]:
-            print("\t".join(seg))
-    
+    count = 0
+    with open(args.output_path, "w", newline='', encoding='utf-8') as f:
+        writer = csv.writer(f, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
+        if hasattr(Segment, '_fields'):
+            writer.writerow(Segment._fields)
+        else:
+            print("Warning: Segment._fields not found. Skipping header.")
+        for lp, segments in complete_segs_by_lp.items():
+            if segments:
+                for seg in segments:
+                    if seg is not None:
+                        count += 1
+                        sanitized_seg = []
+                        for field in seg:
+                            if isinstance(field, str):
+                                sanitized_seg.append(field)
+                            else:
+                                sanitized_seg.append(str(field))
+                        writer.writerow(sanitized_seg)
+                    else:
+                        print(f"Warning: Encountered a None segment in {lp}")
+
+    print(f"Successfully wrote {count} segments to {args.output_path}")
+
 
 if __name__ == "__main__":
     main()
