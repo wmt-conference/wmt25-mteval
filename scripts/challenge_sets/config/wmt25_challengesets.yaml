@@ -1,0 +1,7 @@
+# defines which integer ids for every langpair start from
+starting_ids :
+  en-cs: 100
+  en-ar: 120
+
+
+

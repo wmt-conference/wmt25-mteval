@@ -2,6 +2,8 @@ import argparse
 import csv
 import glob
 import os
+import yaml
+from collections import defaultdict
 
 FIELDNAMES = [
     'doc_id',
@@ -18,8 +20,11 @@ FIELDNAMES = [
 ]
 
 
-def traverse_source_dir(input_directory):
+def traverse_source_dir(input_directory, starting_ids):
     # Process files in the first level of subdirectories
+
+    segment_id_per_langpair = defaultdict(int)
+    segment_id_per_langpair.update(starting_ids)
 
     for challenge_set_name in next(os.walk(input_directory))[1]:
         challenge_set_path = os.path.join(input_directory, challenge_set_name)
@@ -27,35 +32,52 @@ def traverse_source_dir(input_directory):
         # get the language pairs covered by this challenge set
         langpairs = set([filename.split('.')[1] for filename in os.listdir(challenge_set_path)])
 
-        segment_n = 0
-
         for langpair in sorted(list(langpairs)):
             if langpair in ["README", "history", "readme"]:
                 continue
             source_lang, target_lang = langpair.split('-')
 
-            # resolve the filenames for the langpair
+            # resolve the filenames for the langpair by looking into the directory
             hypothesis_filenames, meta_filename, reference_filename, source_filename = resolve_filenames(
                 challenge_set_name, challenge_set_path, langpair)
 
-            with open(source_filename) as source_file, \
-                open(meta_filename) as meta_file:
+            # open the source and the meta files
+            with open(source_filename) as source_file, open(meta_filename) as meta_file:
+
+                # the metadata file needs to be read as a csv as it has two columns
                 meta_reader = csv.reader(meta_file, delimiter='\t')
+                # ignore the header (not doing DictReader cause every participant has a different header)
                 next(meta_reader)
+
+                # challenge sets may or may not have a reference, so try to look for a reference file, if not, leave the
+                # field empty
                 try:
                     reference_file = open(reference_filename)
                     reference_exists = True
                 except FileNotFoundError:
                     reference_exists = False
                     reference_file = None
+
+                # open the hypothesis filenames / using a loop because their number may be
+                # different for every challenge set and/or langpair
                 hypothesis_files = [open(hypothesis_filename) for hypothesis_filename in sorted(hypothesis_filenames)]
 
+                # iterate based on the open source file
                 for source_segment in source_file:
+
+                    # remove useless trailing spaces and linebreaks
                     source_segment = source_segment.strip()
-                    segment_n += 1
+
+                    # there is a segment id for each language pair, that increments for every source
+                    segment_id_per_langpair[langpair] += 1
+
+                    # read the metadata for this source, create dummy metadata if the metadata file ends earlier
+                    # (happened with one challenge set)
                     try:
                         row = next(meta_reader)
                         domain_name, doc_id = row
+                        domain_name = domain_name.strip()
+                        doc_id = doc_id.strip()
                     except StopIteration:
                         domain_name = 'None'
                         doc_id = f"{challenge_set_name}_unknown"
@@ -63,18 +85,19 @@ def traverse_source_dir(input_directory):
                     set_id = f"challenge_{challenge_set_name}"
                     method = ""
 
-                    # segment_id = f"challenge_{challenge_set_name}_#_{langpair}_#_{doc_id}_#_{segment_n}"
-
+                    # get the reference text
                     if reference_exists:
                         reference_segment = next(reference_file).strip()
                     else:
                         reference_segment = ""
+
+                    # create a new row for every hypothesis, the nane of the hypothesis will be the system id
                     for hypothesis_file in hypothesis_files:
                         hypothesis_segment = next(hypothesis_file).strip()
                         system_id = os.path.basename(hypothesis_file.name).split('.')[2] # as in hyp-1, hyp-2
 
                         yield {'doc_id': doc_id,
-                               'segment_id': segment_n,
+                               'segment_id': segment_id_per_langpair[langpair],
                                'source_lang': source_lang,
                                'target_lang': target_lang,
                                'set_id': set_id,
@@ -97,10 +120,10 @@ def resolve_filenames(challenge_set_name, challenge_set_path, langpair):
     return hypothesis_filenames, meta_filename, reference_filename, source_filename
 
 
-def convert_challenge_sets(input_directory, output_tsv_filename):
+def convert_challenge_sets(input_directory, output_tsv_filename, starting_ids):
     with open(output_tsv_filename, 'w') as output_tsv:
         writer = csv.DictWriter(output_tsv, fieldnames=FIELDNAMES, delimiter='\t')
-        for row in traverse_source_dir(input_directory):
+        for row in traverse_source_dir(input_directory, starting_ids):
             writer.writerow(row)
 
 
@@ -113,6 +136,16 @@ if __name__ == '__main__':
                       help="The directory where challenge set submissions exist")
     parser.add_argument('--output_tsv', required=True, type=str,
                       help="The target TSV file where inputs will be placed")
+    parser.add_argument('--config', required=True, type=str, default=None,
+                        help="configuration file")
     args = parser.parse_args()
-    convert_challenge_sets(args.input_dir, args.output_tsv)
+
+    if args.config:
+        with open(args.config) as configfile:
+            config = yaml.safe_load(configfile)
+            starting_ids = config['starting_ids']
+    else:
+        starting_ids = {}
+
+    convert_challenge_sets(args.input_dir, args.output_tsv, starting_ids)
 
