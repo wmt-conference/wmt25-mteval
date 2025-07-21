@@ -9,3 +9,6 @@
 2025-07-19.03-58-01 wc -l 
 2025-07-19.03-58-04 wc -l *txt
 2025-07-19.22-40-05 wc -l *tsv
+2025-07-19.22-40-10 git add . 
+2025-07-19.22-40-31 git commit -m "Added metadata fixes provided by Condrift participant"
+2025-07-19.22-40-35 git push
