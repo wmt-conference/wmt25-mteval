@@ -1,11 +1,44 @@
 #!/usr/bin/env python3
-# Assuming data from wmt-conference/wmt25-general-mt is downloaded 
-# Command to run: 
+# Assuming data from wmt-conference/wmt25-general-mt is downloaded
+# Command to run:
 # python3 testset_jsonl_to_tsv.py  \
 #     --src-file wmt25-general-mt/data/wmt25-genmt.jsonl  \
 #     --teams-file wmt25-general-mt/data/systems_metadata.json \
 #     --hyp-dir wmt25-general-mt/data/systems \
 #     --output-path wmt25_metrics_testset.tsv
+
+# To read as pandas df
+# df = pd.read_csv(
+#     "wmt25_metrics_testset.tsv",
+#     sep="\t",
+#     keep_default_na=False,
+# )
+
+# To read with a csv writer
+# import csv
+# import sys
+
+# data = []
+# with open(
+#     "wmt25_metrics_testset.tsv",
+#     "r",
+#     newline="",
+#     encoding="utf-8",
+# ) as tsvfile:
+#     # The first row is assumed to be the header.
+#     reader = csv.DictReader(tsvfile, delimiter="\t", quoting=csv.QUOTE_MINIMAL)
+#     header = next(reader)
+#     num_fields = len(header)
+#     data.append(header)
+#     for i, row in enumerate(reader):
+#         if len(row) != num_fields:
+#             print(
+#                 f"Row {i}: Field count mismatch! Expected {num_fields}, got {len(row)}. Row: {row}",
+#                 file=sys.stderr,
+#             )
+#             fields_mismatch += 1
+#             continue
+#         data.append(row)
 
 import argparse
 import collections
@@ -14,26 +47,75 @@ import os.path
 import re
 import sys
 import csv
-
+import math
+import pandas as pd
 
 # TODO: remove submissions that won't be sent to human eval (ask Tom/Vilém)
 
 # Parts of an official test segment derived from each resource:
-SrcSeg = collections.namedtuple("SrcSeg", ["doc_id", "segment_id", "source_lang", "target_lang", "set_id", "source_segment", "reference_segment", "domain_name", "method"])
+SrcSeg = collections.namedtuple(
+    "SrcSeg",
+    [
+        "doc_id",
+        "segment_id",
+        "source_lang",
+        "target_lang",
+        "set_id",
+        "source_segment",
+        "reference_segment",
+        "domain_name",
+        "method",
+    ],
+)
 Team = collections.namedtuple("Team", ["system_id", "x_hyp_file"])
 
-Segment = collections.namedtuple("Segment", ["doc_id", "segment_id", "source_lang", "target_lang", "set_id", "system_id", "source_segment", "hypothesis_segment", "reference_segment", "domain_name", "method"])
+Segment = collections.namedtuple(
+    "Segment",
+    [
+        "doc_id",
+        "segment_id",
+        "source_lang",
+        "target_lang",
+        "set_id",
+        "system_id",
+        "source_segment",
+        "hypothesis_segment",
+        "reference_segment",
+        "domain_name",
+        "method",
+    ],
+)
 
 NEEDED_SRC_FIELDS = ["src_lang", "tgt_lang", "doc_id", "domain", "src_text"]
 NEEDED_HYP_FIELDS = ["doc_id", "hypothesis"]
 
+
 # Language pairs:
 def make_lp_name(src_lang, tgt_lang):
     return f"{src_lang}{tgt_lang}"
-ESA_LANGS = [("cs", "de_DE"), ("cs", "uk_UA"), ("en", "ar_EG"), ("en", "bho_IN"), ("en", "zh_CN"), ("en", "cs_CZ"), ("en", "et_EE"), ("en", "is_IS"), ("en", "it_IT"), ("en", "ja_JP"), ("en", "mas_KE"), ("en", "ru_RU"), ("en", "sr_Cyrl_RS"), ("en", "uk_UA")]
+
+
+ESA_LANGS = [
+    ("cs", "de_DE"),
+    ("cs", "uk_UA"),
+    ("en", "ar_EG"),
+    ("en", "bho_IN"),
+    ("en", "zh_CN"),
+    ("en", "cs_CZ"),
+    ("en", "et_EE"),
+    ("en", "is_IS"),
+    ("en", "it_IT"),
+    ("en", "ja_JP"),
+    ("en", "mas_KE"),
+    ("en", "ru_RU"),
+    ("en", "sr_Cyrl_RS"),
+    ("en", "uk_UA"),
+]
 MQM_LANGS = [("en", "ko_KR"), ("ja", "zh_CN")]
-METHOD = dict([ (make_lp_name(tup[0], tup[1]), "ESA") for tup in ESA_LANGS ] +
-              [ (make_lp_name(tup[0], tup[1]), "MQM") for tup in MQM_LANGS ])
+METHOD = dict(
+    [(make_lp_name(tup[0], tup[1]), "ESA") for tup in ESA_LANGS]
+    + [(make_lp_name(tup[0], tup[1]), "MQM") for tup in MQM_LANGS]
+)
 
 
 def load_source(filename):
@@ -57,10 +139,12 @@ def load_source(filename):
             # Skip test suites:
             if not is_official_test_set(doc_data):
                 continue
-            
+
             # Verify that all necessary fields are filled in:
             if not fields_exist(doc_data, NEEDED_SRC_FIELDS):
-                raise ValueError(f"All needed JSON fields {NEEDED_SRC_FIELDS} aren't present; unable to extract document {doc_data}")
+                raise ValueError(
+                    f"All needed JSON fields {NEEDED_SRC_FIELDS} aren't present; unable to extract document {doc_data}"
+                )
 
             # Skip lang pairs that aren't going to be human-evaluated:
             lp = make_lp_name(doc_data["src_lang"], doc_data["tgt_lang"])
@@ -75,7 +159,9 @@ def load_source(filename):
             src_len = len(src_texts)
             ref_len = len(ref_texts)
             if src_len > 0 and ref_len > 0 and ref_len != src_len:
-                raise ValueError(f"Reference has wrong number of segments ({ref_len}, should be {src_len}); unable to extract document {doc_data}")
+                raise ValueError(
+                    f"Reference has wrong number of segments ({ref_len}, should be {src_len}); unable to extract document {doc_data}"
+                )
 
             # Save the segments found:
             segs_for_doc = list()
@@ -89,15 +175,17 @@ def load_source(filename):
                 # Create and store the source segment within its document:
                 st = trim_and_escape(src_texts[i])
                 rt = trim_and_escape(ref_texts[i]) if ref_texts else ""
-                seg = SrcSeg(doc_id=doc_data["doc_id"],
-                             segment_id=str(seg_id),
-                             source_lang=doc_data["src_lang"],
-                             target_lang=doc_data["tgt_lang"],
-                             set_id="official",
-                             source_segment=st,
-                             reference_segment=rt,
-                             domain_name=doc_data["domain"],
-                             method=METHOD[lp])
+                seg = SrcSeg(
+                    doc_id=doc_data["doc_id"],
+                    segment_id=str(seg_id),
+                    source_lang=doc_data["src_lang"],
+                    target_lang=doc_data["tgt_lang"],
+                    set_id="official",
+                    source_segment=st,
+                    reference_segment=rt,
+                    domain_name=doc_data["domain"],
+                    method=METHOD[lp],
+                )
                 segs_for_doc.append(seg)
 
             # Store the segments for this document within its lang pair:
@@ -110,7 +198,9 @@ def load_source(filename):
 
     # Report back what we created:
     for lp in segs_by_lp_and_doc:
-        num_segs = sum([ len(segs_by_lp_and_doc[lp][doc]) for doc in segs_by_lp_and_doc[lp] ])
+        num_segs = sum(
+            [len(segs_by_lp_and_doc[lp][doc]) for doc in segs_by_lp_and_doc[lp]]
+        )
         sys.stderr.write(f"Loaded {num_segs} source segments for {lp}\n")
     return segs_by_lp_and_doc
 
@@ -121,7 +211,7 @@ def load_teams(filename):
     participants and extracts it to a collection of Team tuples, each of which
     represents one primary submission found.  Returns the list of Teams.
     """
-    
+
     sys.stderr.write(f"\nReading team information from file {filename}\n")
     with open(filename, encoding="utf-8") as fh:
         team_data = json.load(fh)
@@ -129,8 +219,7 @@ def load_teams(filename):
     # Create a Team for each team found:
     teams = list()
     for team_entry in team_data:
-        team = Team(system_id=team_entry,
-                    x_hyp_file=f"{team_entry}.jsonl")
+        team = Team(system_id=team_entry, x_hyp_file=f"{team_entry}.jsonl")
         teams.append(team)
 
     # Report back what we created:
@@ -155,12 +244,14 @@ def load_submission(filename):
             doc_data = json.loads(line)
 
             # Skip test suites:
-            #if not is_official_test_set(doc_data):
+            # if not is_official_test_set(doc_data):
             #    continue
 
             # Verify that all necessary fields are filled in:
             if not fields_exist(doc_data, NEEDED_HYP_FIELDS, blanks_ok=True):
-                raise ValueError(f"All needed JSON fields {NEEDED_HYP_FIELDS} aren't present; unable to extract document {doc_data}")
+                raise ValueError(
+                    f"All needed JSON fields {NEEDED_HYP_FIELDS} aren't present; unable to extract document {doc_data}"
+                )
 
             # Skip lang pairs that aren't going to be human-evaluated:
             lp = infer_lp_name(doc_data)
@@ -176,19 +267,20 @@ def load_submission(filename):
     return docs_by_lp
 
 
-def unify_src_hyp(src_segs_by_lp_and_doc, hyp_docs_by_lp,
-                  system_id):
+def unify_src_hyp(src_segs_by_lp_and_doc, hyp_docs_by_lp, system_id):
     """
     x
     """
 
     complete_segs_by_lp = dict()
     sys.stderr.write(f"Aligning submission {system_id}\n")
-    
+
     # Submission decides which lang pairs it attempts:
     for lp in hyp_docs_by_lp:
         src_segs_by_doc = src_segs_by_lp_and_doc[lp]
-        hyp_texts_by_doc = { doc["doc_id"]: doc["hypothesis"] for doc in hyp_docs_by_lp[lp] }
+        hyp_texts_by_doc = {
+            doc["doc_id"]: doc["hypothesis"] for doc in hyp_docs_by_lp[lp]
+        }
         lp_complete_segs = list()
         lp_success = True
 
@@ -196,14 +288,18 @@ def unify_src_hyp(src_segs_by_lp_and_doc, hyp_docs_by_lp,
         for doc_id in src_segs_by_doc:
             # Check that the submission's document appears to match the source:
             if doc_id not in hyp_texts_by_doc:
-                sys.stderr.write(f"ERROR: Expected document {doc_id} missing from submission {system_id} for {lp}\n")
+                sys.stderr.write(
+                    f"ERROR: Expected document {doc_id} missing from submission {system_id} for {lp}\n"
+                )
                 lp_success = False
                 break
             hyp_texts = segment_text(hyp_texts_by_doc[doc_id])
             src_len = len(src_segs_by_doc[doc_id])
             hyp_len = len(hyp_texts)
             if hyp_len != src_len:
-                sys.stderr.write(f"ERROR: Submission {system_id} for {lp} has wrong number of segments ({hyp_len}) for document {doc_id} (should be {src_len})\n")
+                sys.stderr.write(
+                    f"ERROR: Submission {system_id} for {lp} has wrong number of segments ({hyp_len}) for document {doc_id} (should be {src_len})\n"
+                )
                 lp_success = False
                 break
 
@@ -217,13 +313,17 @@ def unify_src_hyp(src_segs_by_lp_and_doc, hyp_docs_by_lp,
 
         # Report progress at the end of processing each lang pair:
         if lp_success:
-            sys.stderr.write(f"Extracted {len(lp_complete_segs)} hyp segments for {lp}\n")
+            sys.stderr.write(
+                f"Extracted {len(lp_complete_segs)} hyp segments for {lp}\n"
+            )
             complete_segs_by_lp[lp] = lp_complete_segs
         else:
             sys.stderr.write(f"Skipping {lp} because of errors\n")
 
     # Return the whole submission's worth of complete segments:
-    sys.stderr.write(f"Extracted complete segments for {len(complete_segs_by_lp)} lang pairs\n")
+    sys.stderr.write(
+        f"Extracted complete segments for {len(complete_segs_by_lp)} lang pairs\n"
+    )
     return complete_segs_by_lp
 
 
@@ -249,9 +349,10 @@ def segment_text(doc_text):
 
 NEWLINES_REGEX = re.compile("\\s*\n\\s*")
 
+
 def trim_and_escape(text):
     fixed = text.strip().replace("\t", " ")
-    # there are literal tabs, not sure if we would want to replace them too though
+    # # there are literal tabs, not sure if we would want to replace them too though
     if "    " in fixed:
         fixed = fixed.replace("    ", " ")
     return NEWLINES_REGEX.sub(r" \\n ", fixed)
@@ -259,10 +360,11 @@ def trim_and_escape(text):
 
 # Map from target language to the source languages it's paired with:
 SL_BY_TL = dict()
-for (sl, tl) in ESA_LANGS + MQM_LANGS:
+for sl, tl in ESA_LANGS + MQM_LANGS:
     if tl not in SL_BY_TL:
         SL_BY_TL[tl] = list()
     SL_BY_TL[tl].append(sl)
+
 
 def infer_lp_name(doc_data):
     if fields_exist(doc_data, ["src_lang", "tgt_lang"]):
@@ -280,24 +382,52 @@ def infer_lp_name(doc_data):
 
 def is_official_lp(lp):
     return lp in METHOD
-    
+
+
+def sanitize_for_tsv_write(value):
+    """Sanitizes values for TSV writing, considering pre-processing.
+    Handles None and NaN.
+    """
+    if value is None:
+        return ""
+    if isinstance(value, float) and math.isnan(value):
+        return ""
+    # String values are assumed to be pre-processed by trim_and_escape.
+    # No further \t or \n handling needed for TSV structure.
+    return str(value)
+
 
 def main():
     # Define and get command-line arguments:
     parser = argparse.ArgumentParser(description="x")
-    parser.add_argument("--src-file", type=str, required=True,
-                        help="Location of the JSON lines file containing the source side of the test data")
-    parser.add_argument("--teams-file", type=str, required=True,
-                        help="Location of the JSON file containing data about the participating MT teams and their output files")
-    parser.add_argument("--hyp-dir", type=str, required=True,
-                        help="Location of the directory containing the teams' output files in JSON lines format")
-    parser.add_argument("--output-path", type=str, required=True,
-                        help="Location to save the tsv file")
+    parser.add_argument(
+        "--src-file",
+        type=str,
+        required=True,
+        help="Location of the JSON lines file containing the source side of the test data",
+    )
+    parser.add_argument(
+        "--teams-file",
+        type=str,
+        required=True,
+        help="Location of the JSON file containing data about the participating MT teams and their output files",
+    )
+    parser.add_argument(
+        "--hyp-dir",
+        type=str,
+        required=True,
+        help="Location of the directory containing the teams' output files in JSON lines format",
+    )
+    parser.add_argument(
+        "--output-path", type=str, required=True, help="Location to save the tsv file"
+    )
     args = parser.parse_args()
 
     # Short circuit: don't start work if MT hyps location is invalid:
     if not os.path.isdir(args.hyp_dir):
-        raise ValueError(f"Provided directory of MT hypothesis files doesn't seem to be a directory: {args.hyp_dir}")
+        raise ValueError(
+            f"Provided directory of MT hypothesis files doesn't seem to be a directory: {args.hyp_dir}"
+        )
 
     # Extract source segments:
     src_segs_by_lp_and_doc = load_source(args.src_file)
@@ -308,11 +438,14 @@ def main():
     for team in teams:
         subm_path = os.path.join(args.hyp_dir, team.x_hyp_file)
         if not os.path.isfile(subm_path):
-            sys.stderr.write(f"\nERROR: Submission file {subm_path} not found; skipping it!\n")
+            sys.stderr.write(
+                f"\nERROR: Submission file {subm_path} not found; skipping it!\n"
+            )
         else:
             hyp_docs_by_lp = load_submission(subm_path)
-            hyp_segs_by_lp = unify_src_hyp(src_segs_by_lp_and_doc, hyp_docs_by_lp,
-                                           team.system_id)
+            hyp_segs_by_lp = unify_src_hyp(
+                src_segs_by_lp_and_doc, hyp_docs_by_lp, team.system_id
+            )
             for lp in hyp_segs_by_lp:
                 if lp not in complete_segs_by_lp:
                     complete_segs_by_lp[lp] = list()
@@ -320,9 +453,9 @@ def main():
 
     # Write accumulated results out by lang pair:
     count = 0
-    with open(args.output_path, "w", newline='', encoding='utf-8') as f:
-        writer = csv.writer(f, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
-        if hasattr(Segment, '_fields'):
+    with open(args.output_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f, delimiter="\t", quoting=csv.QUOTE_MINIMAL)
+        if hasattr(Segment, "_fields"):
             writer.writerow(Segment._fields)
         else:
             print("Warning: Segment._fields not found. Skipping header.")
@@ -331,13 +464,11 @@ def main():
                 for seg in segments:
                     if seg is not None:
                         count += 1
-                        sanitized_seg = []
-                        for field in seg:
-                            if isinstance(field, str):
-                                sanitized_seg.append(field)
-                            else:
-                                sanitized_seg.append(str(field))
-                        writer.writerow(sanitized_seg)
+                        sanitized_row = [
+                            sanitize_for_tsv_write(getattr(seg, field))
+                            for field in Segment._fields
+                        ]
+                        writer.writerow(sanitized_row)
                     else:
                         print(f"Warning: Encountered a None segment in {lp}")
 
