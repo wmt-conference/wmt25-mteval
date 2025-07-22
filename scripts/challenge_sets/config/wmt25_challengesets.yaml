@@ -1,7 +1,19 @@
 # defines which integer ids for every langpair start from
+# this is not used at the moment
 starting_ids :
-  en-cs: 100
-  en-ar: 120
-
-
-
+  en-is: 331
+  cs-de: 456
+  cs-uk: 404
+  en-ar: 331
+  en-bho: 331
+  en-cs: 383
+  en-et: 331
+  en-it: 331
+  en-ja: 331
+  en-ko: 331
+  en-mas: 331
+  en-ru: 331
+  en-sr: 331
+  en-uk: 331
+  en-zh: 331
+  ja-zh: 333
