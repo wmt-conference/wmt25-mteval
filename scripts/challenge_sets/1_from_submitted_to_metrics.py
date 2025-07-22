@@ -2,8 +2,8 @@ import argparse
 import csv
 import glob
 import os
-import yaml
-from collections import defaultdict
+import re
+
 
 FIELDNAMES = [
     'doc_id',
@@ -18,6 +18,16 @@ FIELDNAMES = [
     'domain_name',
     'method'
 ]
+
+NEWLINES_REGEX = re.compile("\\s*\n\\s*")
+
+
+def trim_and_escape(text):
+    fixed = text.strip().replace("\t", " ")
+    # # there are literal tabs, not sure if we would want to replace them too though
+    if "    " in fixed:
+        fixed = fixed.replace("    ", " ")
+    return NEWLINES_REGEX.sub(r" \\n ", fixed)
 
 
 def traverse_source_dir(input_directory):
@@ -42,7 +52,7 @@ def traverse_source_dir(input_directory):
             with open(source_filename) as source_file, open(meta_filename) as meta_file:
 
                 # the metadata file needs to be read as a csv as it has two columns
-                meta_reader = csv.reader(meta_file, delimiter='\t')
+                meta_reader = csv.reader(meta_file, delimiter='\t', quoting=csv.QUOTE_NONE, quotechar=None)
                 # ignore the header (not doing DictReader cause every participant has a different header)
                 next(meta_reader)
 
@@ -100,9 +110,9 @@ def traverse_source_dir(input_directory):
                                'target_lang': target_lang,
                                'set_id': set_id,
                                'system_id': system_id,
-                               'source_segment': source_segment,
-                               'hypothesis_segment': hypothesis_segment,
-                               'reference_segment': reference_segment,
+                               'source_segment': trim_and_escape(source_segment),
+                               'hypothesis_segment': trim_and_escape(hypothesis_segment),
+                               'reference_segment': trim_and_escape(reference_segment),
                                'domain_name': domain_name,
                                'method': method}
 
@@ -120,7 +130,8 @@ def resolve_filenames(challenge_set_name, challenge_set_path, langpair):
 
 def convert_challenge_sets(input_directory, output_tsv_filename):
     with open(output_tsv_filename, 'w') as output_tsv:
-        writer = csv.DictWriter(output_tsv, fieldnames=FIELDNAMES, delimiter='\t')
+        writer = csv.DictWriter(output_tsv, fieldnames=FIELDNAMES, delimiter='\t', quoting=csv.QUOTE_NONE,
+                                quotechar=None)
         for row in traverse_source_dir(input_directory):
             writer.writerow(row)
 
