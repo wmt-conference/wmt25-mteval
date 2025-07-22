@@ -20,11 +20,8 @@ FIELDNAMES = [
 ]
 
 
-def traverse_source_dir(input_directory, starting_ids):
+def traverse_source_dir(input_directory):
     # Process files in the first level of subdirectories
-
-    segment_id_per_langpair = defaultdict(int)
-    segment_id_per_langpair.update(starting_ids)
 
     for challenge_set_name in next(os.walk(input_directory))[1]:
         challenge_set_path = os.path.join(input_directory, challenge_set_name)
@@ -62,14 +59,15 @@ def traverse_source_dir(input_directory, starting_ids):
                 # different for every challenge set and/or langpair
                 hypothesis_files = [open(hypothesis_filename) for hypothesis_filename in sorted(hypothesis_filenames)]
 
+                segment_id = 0
                 # iterate based on the open source file
                 for source_segment in source_file:
 
                     # remove useless trailing spaces and linebreaks
                     source_segment = source_segment.strip()
 
-                    # there is a segment id for each language pair, that increments for every source
-                    segment_id_per_langpair[langpair] += 1
+                    # there is a segment id for each challenge set, that increments for every source
+                    segment_id += 1
 
                     # read the metadata for this source, create dummy metadata if the metadata file ends earlier
                     # (happened with one challenge set)
@@ -79,17 +77,17 @@ def traverse_source_dir(input_directory, starting_ids):
                         domain_name = domain_name.strip()
                         doc_id = doc_id.strip()
                     except StopIteration:
-                        domain_name = 'None'
+                        domain_name = 'NaN'
                         doc_id = f"{challenge_set_name}_unknown"
 
                     set_id = f"challenge_{challenge_set_name}"
-                    method = ""
+                    method = "NaN"
 
                     # get the reference text
                     if reference_exists:
                         reference_segment = next(reference_file).strip()
                     else:
-                        reference_segment = ""
+                        reference_segment = "NaN"
 
                     # create a new row for every hypothesis, the nane of the hypothesis will be the system id
                     for hypothesis_file in hypothesis_files:
@@ -97,7 +95,7 @@ def traverse_source_dir(input_directory, starting_ids):
                         system_id = os.path.basename(hypothesis_file.name).split('.')[2] # as in hyp-1, hyp-2
 
                         yield {'doc_id': doc_id,
-                               'segment_id': segment_id_per_langpair[langpair],
+                               'segment_id': segment_id,
                                'source_lang': source_lang,
                                'target_lang': target_lang,
                                'set_id': set_id,
@@ -115,15 +113,15 @@ def resolve_filenames(challenge_set_name, challenge_set_path, langpair):
     meta_filename = os.path.join(challenge_set_path, f"{challenge_set_name}.{langpair}.meta.txt")
     if not os.path.isfile(meta_filename):
         meta_filename = os.path.join(challenge_set_path, f"{challenge_set_name}.{langpair}.meta.tsv")
-    hypothesis_glob = os.path.join(challenge_set_path, f"{challenge_set_name}.{langpair}.hyp-*.txt")
+    hypothesis_glob = os.path.join(challenge_set_path, f"{challenge_set_name}.{langpair}.hyp*.txt")
     hypothesis_filenames = glob.glob(hypothesis_glob)
     return hypothesis_filenames, meta_filename, reference_filename, source_filename
 
 
-def convert_challenge_sets(input_directory, output_tsv_filename, starting_ids):
+def convert_challenge_sets(input_directory, output_tsv_filename):
     with open(output_tsv_filename, 'w') as output_tsv:
         writer = csv.DictWriter(output_tsv, fieldnames=FIELDNAMES, delimiter='\t')
-        for row in traverse_source_dir(input_directory, starting_ids):
+        for row in traverse_source_dir(input_directory):
             writer.writerow(row)
 
 
@@ -140,12 +138,12 @@ if __name__ == '__main__':
                         help="configuration file")
     args = parser.parse_args()
 
-    if args.config:
-        with open(args.config) as configfile:
-            config = yaml.safe_load(configfile)
-            starting_ids = config['starting_ids']
-    else:
-        starting_ids = {}
+    # if args.config:
+    #     with open(args.config) as configfile:
+    #         config = yaml.safe_load(configfile)
+    #         starting_ids = config['starting_ids']
+    # else:
+    #     starting_ids = {}
 
-    convert_challenge_sets(args.input_dir, args.output_tsv, starting_ids)
+    convert_challenge_sets(args.input_dir, args.output_tsv)
 
