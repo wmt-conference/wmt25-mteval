@@ -53,8 +53,7 @@ def traverse_source_dir(input_directory):
 
                 # the metadata file needs to be read as a csv as it has two columns
                 meta_reader = csv.reader(meta_file, delimiter='\t', quoting=csv.QUOTE_NONE, quotechar=None)
-                # ignore the header (not doing DictReader cause every participant has a different header)
-                next(meta_reader)
+
 
                 # challenge sets may or may not have a reference, so try to look for a reference file, if not, leave the
                 # field empty
@@ -70,6 +69,8 @@ def traverse_source_dir(input_directory):
                 hypothesis_files = [open(hypothesis_filename) for hypothesis_filename in sorted(hypothesis_filenames)]
 
                 segment_id = 0
+                stopiteration = False
+
                 # iterate based on the open source file
                 for source_segment in source_file:
 
@@ -81,14 +82,26 @@ def traverse_source_dir(input_directory):
 
                     # read the metadata for this source, create dummy metadata if the metadata file ends earlier
                     # (happened with one challenge set)
+
                     try:
                         row = next(meta_reader)
-                        domain_name, doc_id = row
+
+                        # skip the header if it exists (some challenge sets have it, some not)
+                        if 'doc_id' in row:
+                            row = next(meta_reader)
+
+                        try:
+                            domain_name, doc_id = row
+                        except ValueError as e:
+                            print(meta_filename, segment_id, row)
+                            raise(e)
+
                         domain_name = domain_name.strip()
                         doc_id = doc_id.strip()
                     except StopIteration:
                         domain_name = 'NaN'
                         doc_id = f"{challenge_set_name}_unknown"
+                        stopiteration = True
 
                     set_id = f"challenge_{challenge_set_name}"
                     method = "NaN"
@@ -115,6 +128,9 @@ def traverse_source_dir(input_directory):
                                'reference_segment': trim_and_escape(reference_segment),
                                'domain_name': domain_name,
                                'method': method}
+
+                if stopiteration:
+                    print("Warning, the following metadata file was shorter than the sources file:", meta_filename)
 
 
 def resolve_filenames(challenge_set_name, challenge_set_path, langpair):
