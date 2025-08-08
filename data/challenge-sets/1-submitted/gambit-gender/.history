@@ -2,3 +2,6 @@
 2025-07-19.04-12-34 wc -l *
 2025-07-19.04-13-15 less gambit-gender.fi-el.meta.tsv
 2025-07-19.04-13-30 less -N gambit-gender.fi-el.meta.tsv
+2025-07-23.19-38-55 gzip challenge_sets.tsv 
+2025-07-23.19-38-59 wc -l tsv
+2025-07-23.19-39-02 wc -l *tsv
