@@ -1,8 +1,0 @@
-2025-07-19.13-59-28 git add 1_from_submitted_to_metrics.py 
-2025-07-19.22-14-30 git add 1_from_submitted_to_metrics.py 
-2025-07-19.22-14-41 git config/wmt25_challengesets.yaml
-2025-07-19.22-14-45 git add config/wmt25_challengesets.yaml
-2025-07-19.22-15-05 git commit -m "Modified script to allow langpair-level incremental IDs"
-2025-07-19.22-15-08 git push
-2025-07-19.22-16-03 git pull
-2025-07-19.22-17-07 git push

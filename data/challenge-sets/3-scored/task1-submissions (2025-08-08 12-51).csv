@@ -1,0 +1,129 @@
+ID	File Name	Owner	Phase	Date	Status	Score	Team	Slot	System Name	Uses Refs?	Expect Non-Linear Sys Scores?	Expect LPs
+342989	BERTScore.wmt25.zip	metricstask	Competition	2025-07-30 00:57	Finished 	0,24	[organizers]	Baseline	BERTScore	Yes?	Yes?	Refs only?
+337555	BLEU.wmt25.zip	metricstask	Competition	2025-07-24 17:07	Finished 	0,29	[organizers]	Baseline	BLEU	Yes	Yes	Refs only
+338155	chrF.wmt25.zip	metricstask	Competition	2025-07-25 09:55	Finished 	0,28	[organizers]	Baseline	chrF	Yes	Yes	Refs only
+336745	COMET22.wmt25.zip	metricstask	Competition	2025-07-23 22:13	Finished 	0,43	[organizers]	Baseline	COMET22	Yes	No	Refs only
+336725	COMETKiwi22.wmt25.zip	metricstask	Competition	2025-07-23 21:32	Finished 	1,00	[organizers]	Baseline	COMETKiwi22	No	No?	All
+350002	sentinel-cand-mqm.zip	sted19	Competition	2025-08-06 13:46	Finished 	0,31	Sentinel metrics	Baseline	sentinel-cand	No	No	All
+350006	sentinel-ref-mqm.zip	sted19	Competition	2025-08-06 13:58	Finished 	-0,09	Sentinel metrics	Baseline	Sentinel-ref			
+350043	sentinel-src-mqm-25.zip	sted19	Competition	2025-08-06 15:14	Finished 	-0,15	Sentinel metrics	Baseline	sentinel-src	No	No	All
+336762	spBLEU.wmt25.zip	metricstask	Competition	2025-07-23 22:34	Finished 	0,27	[organizers]	Baseline	spBLEU	Yes	Yes?	Refs only
+342990	YiSi-1.wmt25.zip	metricstask	Competition	2025-07-30 00:58	Finished 	0,26	[organizers]	Baseline	YiSi-1	Yes?	Yes?	Refs only?
+338468	cand2.zip	tuanh	Competition	2025-07-25 17:42	Finished 	0,46	KIT-ETH-UMich	Primary	Polycand-2	No	Yes	All
+349854	comet22-segments.tsv.zip	sami-haq99	Competition	2025-08-06 08:40	Finished 	0,56	DCU_ADAPT	Primary	comet-multi	Yes	Yes	Subset
+349979	final_submission.tsv.zip	monishwaran	Competition	2025-08-06 12:51	Finished 	0,29	TASER	Primary	TASER-No-Ref	No	?	All
+350170	MetricX-25-Hybrid.zip	jjuraska	Competition	2025-08-06 23:55	Finished 	0,26	MetricX-25	Primary	MetricX-25	No?	No	All
+350360	mrun7.2.1_both.zip	hrabalm	Competition	2025-08-07 06:44	Finished 	0,35	CUNI	Primary	mr7.2.1	No	No	All
+350055	PhraseEnsembleSlick01.zip	ondrejglembek	Competition	2025-08-06 16:47	Finished 	0,65	Phrase	Primary	EnsembleSlick	No	Yes	All
+349319	res_mean.zip	hw-tsc	Competition	2025-08-05 09:51	Finished 	0,74	hw-tsc	Primary	hw-tsc			
+350425	segments.tsv.zip	shuoyangd	Competition	2025-08-07 07:59	Finished 	0,42	Nvidia-Nemo	Primary	SEGALE-QE	No	No	All
+350315	segments.zip	sujal007	Competition	2025-08-07 05:10	Finished 	0,45	Sujal_and_Astha	Primary	rankedCOMET	Yes	No	All
+350053	UvA-MT-qe25.zip	uva-mt	Competition	2025-08-06 16:27	Finished 	0,18	UvA-MT	Primary	UvA-MT	No	Yes	All
+350153	wmt25.submission.gemba-v2-mqmneg-ra.zip	emjotde	Competition	2025-08-06 23:18	Finished 	0,33	Microsoft Translator	Primary	GEMBA-v2	No	No	All
+350057	AutoLQA03.zip	ondrejglembek	Competition	2025-08-06 17:01	Finished 	0,31	Phrase	Secondary	AutoLQA	No?	Yes	All
+338484	cand1.zip	tuanh	Competition	2025-07-25 18:00	Finished 	0,43	KIT-ETH-UMich	Secondary	Polycand-1	No	Yes	All
+350064	CollabPlusEnsemble01.zip	hrabalm	Competition	2025-08-06 17:55	Finished 	0,51	CUNI	Secondary	CollabPlus	No?	No	All
+350062	CollabSlickEnsemble01.zip	ondrejglembek	Competition	2025-08-06 17:26	Finished 	0,56	Phrase	Secondary	CollabSlick	No?	Yes	All
+338479	ic3.zip	tuanh	Competition	2025-07-25 17:53	Finished 	0,31	KIT-ETH-UMich	Secondary	Polyic-3	No	Yes	All
+350162	MetricX-25-QE.zip	jjuraska	Competition	2025-08-06 23:41	Finished 	0,30	MetricX-25	Secondary	MetricX-25-QE	No	No	All
+349993	MetricX-25-Ref.zip	jjuraska	Competition	2025-08-06 13:28	Finished 	0,29	MetricX-25	Secondary	MetricX-25-Ref	Yes	No	Refs only
+349858	mix-segments.tsv.zip	sami-haq99	Competition	2025-08-06 08:47	Finished 	0,50	DCU_ADAPT	Secondary	long-context	Yes?	Yes	Subset
+350373	mrun6_official.zip	hrabalm	Competition	2025-08-07 07:03	Finished 	0,30	CUNI	Secondary	mr6	No?	No	All
+348478	res_base_1.zip	hw-tsc	Competition	2025-08-04 03:20	Finished 	0,72	hw-tsc	Secondary	hw-tsc			
+349575	res_max.zip	hw-tsc	Competition	2025-08-05 21:01	Finished 	0,72	hw-tsc	Secondary	hw-tsc			
+349862	roberta-segments.zip	sami-haq99	Competition	2025-08-06 09:00	Finished 	0,52	DCU_ADAPT	Secondary	roberta-multi	Yes?	Yes	Subset
+350258	secondary_segments.tsv.zip	brianyan918	Competition	2025-08-07 03:33	Finished 	0,37	Nvidia-Nemo	Secondary	Q_MQM	No?	No	All
+350096	segments_reference_based.tsv.zip	monishwaran	Competition	2025-08-06 20:15	Finished 	0,28	TASER	Secondary	TASER-Ref	Yes?	?	All
+350248	segments.tsv.zip	brianyan918	Competition	2025-08-07 03:17	Finished 	0,35	Nvidia-Nemo	Secondary	Q_Relative-MQM	No	No	All
+350274	segments.zip	sujal007	Competition	2025-08-07 03:59	Finished 	0,43	Sujal_and_Astha	Secondary	baseCOMET	Yes?	No	Yes
+349874	Archive_2.zip	monishwaran	Competition	2025-08-06 09:31	Failed 		TASER					
+349668	Archive.zip	monishwaran	Competition	2025-08-06 02:29	Failed 		TASER					
+339367	base.zip	tuanh	Competition	2025-07-26 15:58	Finished 	0,30	KIT-ETH-UMich					
+343480	bundle.zip	ondrejglembek	Competition	2025-07-30 08:58	Finished 	0,67	Phrase					
+339363	cand1-sim.zip	tuanh	Competition	2025-07-26 15:50	Finished 	0,38	KIT-ETH-UMich					
+339361	cand2-sim.zip	tuanh	Competition	2025-07-26 15:43	Finished 	0,41	KIT-ETH-UMich					
+336730	Deleted File	metricstask	Competition	2025-07-23 21:44	Finished 		[organizers]					
+338463	Deleted File	tuanh	Competition	2025-07-25 17:39	Failed 		KIT-ETH-UMich					
+341192	Deleted File	sami-haq99	Competition	2025-07-28 14:09	Failed 		DCU_ADAPT					
+341210	Deleted File	sami-haq99	Competition	2025-07-28 14:15	Finished 	0,51	DCU_ADAPT					
+343072	Deleted File	hw-tsc	Competition	2025-07-30 02:51	Finished 	0,17						
+343081	Deleted File	weibin	Competition	2025-07-30 02:59	Failed 							
+343794	Deleted File	emjotde	Competition	2025-07-30 13:54	Finished 	0,33	Microsoft Translator					
+343813	Deleted File	emjotde	Competition	2025-07-30 14:03	Finished 	-0,33	Microsoft Translator					
+343861	Deleted File	emjotde	Competition	2025-07-30 14:42	Finished 	0,31	Microsoft Translator					
+343908	Deleted File	emjotde	Competition	2025-07-30 15:44	Finished 	0,42	Microsoft Translator					
+344417	Deleted File	emjotde	Competition	2025-07-31 02:55	Finished 	0,33	Microsoft Translator					
+344418	Deleted File	emjotde	Competition	2025-07-31 02:57	Finished 	0,33	Microsoft Translator					
+344858	Deleted File	ondrejglembek	Competition	2025-07-31 09:48	Finished 	0,11	Phrase					
+345006	Deleted File	sami-haq99	Competition	2025-07-31 11:14	Failed 		DCU_ADAPT					
+345009	Deleted File	sami-haq99	Competition	2025-07-31 11:19	Failed 		DCU_ADAPT					
+345016	Deleted File	sami-haq99	Competition	2025-07-31 11:22	Failed 		DCU_ADAPT					
+345027	Deleted File	sami-haq99	Competition	2025-07-31 11:34	Failed 		DCU_ADAPT					
+345055	Deleted File	sami-haq99	Competition	2025-07-31 12:02	Finished 	0,53	DCU_ADAPT					
+345199	Deleted File	sami-haq99	Competition	2025-07-31 13:14	Failed 		DCU_ADAPT					
+345994	Deleted File	sami-haq99	Competition	2025-08-01 06:29	Failed 		DCU_ADAPT					
+345997	Deleted File	sami-haq99	Competition	2025-08-01 06:31	Failed 		DCU_ADAPT					
+346002	Deleted File	sami-haq99	Competition	2025-08-01 06:37	Failed 		DCU_ADAPT					
+346015	Deleted File	sami-haq99	Competition	2025-08-01 06:47	Failed 		DCU_ADAPT					
+346018	Deleted File	sami-haq99	Competition	2025-08-01 06:50	Failed 		DCU_ADAPT					
+346026	Deleted File	sami-haq99	Competition	2025-08-01 06:53	Failed 		DCU_ADAPT					
+346033	Deleted File	sami-haq99	Competition	2025-08-01 07:00	Failed 		DCU_ADAPT					
+346041	Deleted File	sami-haq99	Competition	2025-08-01 07:04	Failed 		DCU_ADAPT					
+350120	Deleted File	shuoyangd	Competition	2025-08-06 21:55	Failed 		Nvidia-Nemo					
+349958	GolemEnsemble01.zip	ondrejglembek	Competition	2025-08-06 11:50	Finished 	0,50	Phrase					
+338487	ic1.zip	tuanh	Competition	2025-07-25 18:03	Finished 	0,31	KIT-ETH-UMich					
+343073	ja-zh_1.zip	hw-tsc	Competition	2025-07-30 02:53	Failed 							
+342881	ja-zh.zip	hw-tsc	Competition	2025-07-29 22:40	Finished 	0,17						
+343091	ja-zh1.zip	weibin	Competition	2025-07-30 03:13	Finished 	0,72						
+338850	knn_polycand.zip	tuanh	Competition	2025-07-26 06:59	Finished 	0,23	KIT-ETH-UMich					
+338480	knn_polyic.zip	tuanh	Competition	2025-07-25 17:56	Finished 	0,21	KIT-ETH-UMich					
+350224	MetricX-v2p6-Hybrid.zip	jjuraska	Competition	2025-08-07 02:13	Finished 	0,35	MetricX-25					
+350223	mrun7.2.1_official.zip	hrabalm	Competition	2025-08-07 02:12	Finished 	0,35	CUNI					
+349369	PhraseEnsemble01.zip	ondrejglembek	Competition	2025-08-05 11:23	Finished 	0,53	Phrase					
+349431	PhraseSingle02.zip	ondrejglembek	Competition	2025-08-05 13:04	Finished 	0,61	Phrase					
+348406	res_base_1.zip	weibin	Competition	2025-08-03 22:48	Finished 	0,72						
+348477	res_max.zip	weibin	Competition	2025-08-04 03:11	Finished 	0,72						
+348470	res_mean.zip	weibin	Competition	2025-08-04 02:58	Finished 	0,74						
+348393	res_xl_1.zip	weibin	Competition	2025-08-03 22:15	Finished 	0,58						
+348395	res_xxl_1.zip	weibin	Competition	2025-08-03 22:29	Finished 	0,67						
+343517	res2.zip	weibin	Competition	2025-07-30 09:42	Failed 							
+343528	res2.zip	weibin	Competition	2025-07-30 09:56	Finished 	0,72						
+343533	res3.zip	hw-tsc	Competition	2025-07-30 10:11	Finished 	0,72						
+344191	res4.zip	hw-tsc	Competition	2025-07-30 22:16	Finished 	0,72						
+344358	res5.zip	weibin	Competition	2025-07-31 02:07	Finished 	0,86						
+344481	res6.zip	weibin	Competition	2025-07-31 04:03	Finished 	0,70						
+344498	res7.zip	hw-tsc	Competition	2025-07-31 04:17	Finished 	0,79						
+349905	segments_2.tsv.zip	monishwaran	Competition	2025-08-06 10:04	Failed 		TASER					
+349908	segments_3.tsv.zip	monishwaran	Competition	2025-08-06 10:09	Failed 		TASER					
+349934	segments_4.tsv.zip	monishwaran	Competition	2025-08-06 10:33	Failed 		TASER					
+349936	segments_5.tsv.zip	monishwaran	Competition	2025-08-06 10:43	Failed 		TASER					
+349938	segments_6.tsv.zip	monishwaran	Competition	2025-08-06 10:45	Failed 		TASER					
+350103	segments_ref_free_final.tsv.zip	monishwaran	Competition	2025-08-06 20:37	Finished 	0,31	TASER					
+349375	segments-comet22.zip	sami-haq99	Competition	2025-08-05 11:32	Finished 	0,56	DCU_ADAPT					
+349641	segments.tsv.zip	monishwaran	Competition	2025-08-06 00:58	Failed 		TASER					
+349897	segments.tsv.zip	monishwaran	Competition	2025-08-06 09:53	Failed 		TASER					
+349942	segments.tsv.zip	monishwaran	Competition	2025-08-06 10:50	Failed 		TASER					
+349947	segments.tsv.zip	monishwaran	Competition	2025-08-06 11:05	Finished 	-0,11	TASER					
+349950	segments.tsv.zip	monishwaran	Competition	2025-08-06 11:15	Failed 		TASER					
+350121	segments.tsv.zip	shuoyangd	Competition	2025-08-06 22:01	Finished 	0,32	Nvidia-Nemo					
+349251	segments.zip	sami-haq99	Competition	2025-08-05 06:51	Finished 	0,56	DCU_ADAPT					
+349256	segments.zip	sami-haq99	Competition	2025-08-05 07:00	Finished 	0,50	DCU_ADAPT					
+349258	segments.zip	sami-haq99	Competition	2025-08-05 07:02	Finished 	0,52	DCU_ADAPT					
+349913	segments.zip	sujal007	Competition	2025-08-06 10:11	Failed 		Sujal_and_Astha					
+350292	segments.zip	sujal007	Competition	2025-08-07 04:30	Finished 	0,43	Sujal_and_Astha					
+350299	segments.zip	sujal007	Competition	2025-08-07 04:47	Failed 		Sujal_and_Astha					
+350303	segments.zip	sujal007	Competition	2025-08-07 04:54	Finished 	0,43	Sujal_and_Astha					
+350323	segments.zip	sujal007	Competition	2025-08-07 05:24	Finished 	0,42	Sujal_and_Astha					
+350368	segments.zip	asthashrestha	Competition	2025-08-07 06:57	Finished 	0,45	Sujal_and_Astha					
+350406	segments.zip	asthashrestha	Competition	2025-08-07 07:22	Finished 	0,43	Sujal_and_Astha					
+350409	segments.zip	asthashrestha	Competition	2025-08-07 07:25	Finished 	0,42	Sujal_and_Astha					
+350412	segments.zip	asthashrestha	Competition	2025-08-07 07:26	Finished 	0,45	Sujal_and_Astha					
+350417	segments.zip	asthashrestha	Competition	2025-08-07 07:37	Finished 	0,45	Sujal_and_Astha					
+350005	sentinel-src-mqm.zip	sted19	Competition	2025-08-06 13:58	Finished 	-0,05	Sentinel metrics					
+349666	taser_2.zip	monishwaran	Competition	2025-08-06 02:22	Failed 		TASER					
+349639	taser.zip	monishwaran	Competition	2025-08-06 00:53	Failed 		TASER					
+349661	taser.zip	monishwaran	Competition	2025-08-06 02:00	Failed 		TASER					
+349665	taser.zip	monishwaran	Competition	2025-08-06 02:15	Failed 		TASER					
+349957	ts.tsv.zip	monishwaran	Competition	2025-08-06 11:48	Failed 		TASER					
+349962	ts2.tsv.zip	monishwaran	Competition	2025-08-06 11:55	Failed 		TASER					
+350051	UvA-mt-qe25.zip	uva-mt	Competition	2025-08-06 16:13	Failed 		UvA-MT					
