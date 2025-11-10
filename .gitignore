@@ -1,1 +1,5 @@
 .history
+.idea
+data/all-task1-submissions/
+data/wmt25-genmt-humeval-metrics.jsonl
+generated/
